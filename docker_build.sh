@@ -4,7 +4,7 @@ echo "Building Docker images for Image Understanding Application..."
 
 # Stop and remove existing containers if they exist
 echo "Checking for existing containers..."
-CONTAINERS=("image-model" "image-backend" "image-frontend" "nginx")
+CONTAINERS=("image-model" "image-backend" "image-frontend" "test-frontend" "nginx")
 for container in "${CONTAINERS[@]}"; do
     if sudo docker ps -a --format "{{.Names}}" | grep -q "^${container}$"; then
         echo "Stopping existing container: ${container}"
@@ -35,6 +35,13 @@ if ! sudo docker build -t image-frontend:1.0 ./frontend; then
     exit 1
 fi
 
+# Build test frontend service
+echo "Building test frontend service..."
+if ! sudo docker build -t test-frontend:1.0 ./test-frontend; then
+    echo "ERROR: Failed to build test-frontend:1.0"
+    exit 1
+fi
+
 # Build model service
 echo "Building model service..."
 if ! sudo docker build -t image-model:1.0 ./model; then
@@ -52,7 +59,7 @@ fi
 # Verify all images were built successfully
 echo "Verifying built images..."
 missing_images=0
-for image in image-backend:1.0 image-frontend:1.0 image-model:1.0 image-nginx:1.0; do
+for image in image-backend:1.0 image-frontend:1.0 test-frontend:1.0 image-model:1.0 image-nginx:1.0; do
     if ! sudo docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${image}$"; then
         echo "ERROR: Image ${image} not found after build"
         missing_images=1

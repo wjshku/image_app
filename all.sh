@@ -7,7 +7,7 @@ echo ""
 
 # Stop and remove existing containers if they exist
 echo "Step 1: Cleaning up existing containers..."
-CONTAINERS=("image-model" "image-backend" "image-frontend" "nginx")
+CONTAINERS=("image-model" "image-backend" "image-frontend" "test-frontend" "nginx")
 containers_found=0
 for container in "${CONTAINERS[@]}"; do
     if sudo docker ps -a --format "{{.Names}}" | grep -q "^${container}$"; then
@@ -56,19 +56,22 @@ sleep 5
 
 # Final check
 echo "Step 6: Verifying all containers are running..."
-lines=$(sudo docker ps -f name=image-backend -f name=image-frontend -f name=image-model -f name=nginx | wc -l | awk '{print $1 - 1}')
-if [ $lines -eq 4 ]; then
+lines=$(sudo docker ps -f name=image-backend -f name=image-frontend -f name=test-frontend -f name=image-model -f name=nginx | wc -l | awk '{print $1 - 1}')
+if [ $lines -eq 5 ]; then
     echo ""
     echo "=========================================="
     echo "✓ All containers are running successfully!"
     echo "=========================================="
     echo ""
-    echo "Application is available at: http://localhost"
+    echo "Applications are available at:"
+    echo "  - Image App: http://app.trisure.me (or http://localhost)"
+    echo "  - Test Page: http://test.trisure.me"
     echo ""
     echo "To view logs:"
     echo "  sudo docker logs -f image-backend"
     echo "  sudo docker logs -f image-model"
     echo "  sudo docker logs -f image-frontend"
+    echo "  sudo docker logs -f test-frontend"
     echo "  sudo docker logs -f nginx"
 else
     echo ""
@@ -77,10 +80,10 @@ else
     echo "=========================================="
     echo ""
     echo "Running containers:"
-    sudo docker ps -f name=image-backend -f name=image-frontend -f name=image-model -f name=nginx
+    sudo docker ps -f name=image-backend -f name=image-frontend -f name=test-frontend -f name=image-model -f name=nginx
     echo ""
     echo "All containers (including stopped):"
-    sudo docker ps -a -f name=image-backend -f name=image-frontend -f name=image-model -f name=nginx
+    sudo docker ps -a -f name=image-backend -f name=image-frontend -f name=test-frontend -f name=image-model -f name=nginx
     echo ""
     echo "Please check the logs above for errors"
     exit 1

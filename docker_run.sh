@@ -5,7 +5,7 @@ echo "Starting Image Understanding Application containers..."
 # Check if required images exist
 echo "Checking required Docker images..."
 missing_images=0
-for image in image-backend:1.0 image-frontend:1.0 image-model:1.0 image-nginx:1.0; do
+for image in image-backend:1.0 image-frontend:1.0 test-frontend:1.0 image-model:1.0 image-nginx:1.0; do
     if ! sudo docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${image}$"; then
         echo "ERROR: Image ${image} not found. Please run ./docker_build.sh first."
         missing_images=1
@@ -19,7 +19,7 @@ fi
 
 # Stop and remove existing containers if they exist
 echo "Cleaning up existing containers..."
-for container in image-model image-backend image-frontend nginx; do
+for container in image-model image-backend image-frontend test-frontend nginx; do
     if sudo docker ps -a --format "{{.Names}}" | grep -q "^${container}$"; then
         echo "Stopping and removing existing container: ${container}"
         sudo docker stop ${container} 2>/dev/null || true
@@ -91,6 +91,19 @@ sudo docker run -d \
 # Wait for frontend to be ready
 sleep 2
 
+# Start test frontend service
+echo "Starting test frontend service..."
+sudo docker run -d \
+    -v /etc/timezone:/etc/timezone:ro \
+    -v /etc/localtime:/etc/localtime:ro \
+    --name test-frontend \
+    --network image-network \
+    --restart always \
+    test-frontend:1.0
+
+# Wait for test frontend to be ready
+sleep 2
+
 # Start nginx reverse proxy
 echo "Starting nginx reverse proxy..."
 sudo docker run -d \
@@ -108,7 +121,7 @@ sleep 2
 # Verify all containers are running
 echo "Verifying container status..."
 failed_containers=0
-for container in image-model image-backend image-frontend nginx; do
+for container in image-model image-backend image-frontend test-frontend nginx; do
     if ! sudo docker ps --format "{{.Names}}" | grep -q "^${container}$"; then
         echo "ERROR: Container ${container} failed to start"
         echo "Checking logs:"
@@ -126,9 +139,13 @@ fi
 
 echo ""
 echo "All containers started successfully!"
-echo "Application will be available at: http://localhost"
-echo "Model API documentation: http://localhost:23333"
+echo ""
+echo "Applications are available at:"
+echo "  - Image App: http://app.trisure.me (or http://localhost)"
+echo "  - Test Page: http://test.trisure.me"
+echo "  - Model API documentation: http://localhost:23333"
 echo ""
 echo "To view logs, use:"
 echo "  sudo docker logs -f image-backend"
 echo "  sudo docker logs -f image-model"
+echo "  sudo docker logs -f test-frontend"

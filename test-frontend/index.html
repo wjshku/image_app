@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面 TriSure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            min-width: 400px;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        
+        .timer-container {
+            margin: 30px 0;
+        }
+        
+        .timer-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .timer-label {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .timer-controls {
+            margin-top: 30px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            margin: 5px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .info {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>测试页面 TriSure</h1>
+        <p style="color: #666; font-size: 1.2em; margin-bottom: 20px;">这是一个测试页面</p>
+        
+        <div class="timer-container">
+            <div class="timer-label">运行时间</div>
+            <div class="timer-display" id="timer">00:00:00</div>
+            <div class="timer-controls">
+                <button id="startBtn" onclick="startTimer()">开始</button>
+                <button id="pauseBtn" onclick="pauseTimer()" disabled>暂停</button>
+                <button id="resetBtn" onclick="resetTimer()">重置</button>
+            </div>
+        </div>
+        
+        <div class="info">
+            页面加载时间: <span id="loadTime"></span>
+        </div>
+    </div>
+
+    <script>
+        let timer = 0;
+        let interval = null;
+        let isRunning = false;
+        const startTime = Date.now();
+
+        // 显示页面加载时间
+        window.addEventListener('load', function() {
+            const loadTime = ((Date.now() - startTime) / 1000).toFixed(2);
+            document.getElementById('loadTime').textContent = loadTime + ' 秒';
+        });
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            document.getElementById('timer').textContent = formatTime(timer);
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                interval = setInterval(function() {
+                    timer++;
+                    updateDisplay();
+                }, 1000);
+                
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(interval);
+                
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+            }
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timer = 0;
+            updateDisplay();
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+        }
+
+        // 初始化显示
+        updateDisplay();
+    </script>
+</body>
+</html>
+
