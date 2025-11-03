@@ -18,7 +18,7 @@
 1. **前端 (Frontend)**: Nginx 服务静态 HTML/JavaScript 界面
 2. **后端 (Backend)**: FastAPI 处理请求和流式响应
 3. **模型服务 (Model)**: InternVL3-2B-AWQ 模型推理服务
-4. **反向代理 (Nginx)**: 统一入口，路由分发到前端和后端
+4. **反向代理 (Nginx)**: 统一入口，路由分发到前端和后端, 后期可加入 SSL 证书
 
 ## 本地部署
 
